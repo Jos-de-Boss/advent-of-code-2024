@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -58,19 +59,33 @@ fn compute_difference(left_value: i32, right_value: i32) -> i32 {
     0
 }
 
+fn extract_vector_frequencies(vector: &Vec<i32>) -> HashMap<&i32, i32> {
+    let mut frequency_map = HashMap::new();
+    for vector_entry in vector {
+        *frequency_map.entry(vector_entry).or_insert(0) += 1
+    }
+
+    frequency_map
+}
+
 fn main() {
     let (mut left_list, mut right_list) = read_data_from_file(FILE_PATH);
 
     left_list.sort();
     right_list.sort();
 
+    let right_list_frequency_map = extract_vector_frequencies(&right_list);
+
     let mut total_difference = 0;
+    let mut similarity_score = 0;
     for vector_index in 0..left_list.len() {
         let left_value = left_list[vector_index];
         let right_value = right_list[vector_index];
 
-        total_difference += compute_difference(left_value, right_value)
+        total_difference += compute_difference(left_value, right_value);
+        similarity_score += left_value * right_list_frequency_map.get(&left_value).unwrap_or(&0);
     }
 
-    println!("Total difference: {}", total_difference)
+    println!("Total difference: {}", total_difference);
+    println!("Similarity score: {}", similarity_score);
 }
